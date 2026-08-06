@@ -461,8 +461,17 @@
   }
   .nl-box h2 { font-size: 2.2rem; margin-bottom: 12px; }
   .nl-box p { color: var(--slate-300); margin-bottom: 28px; }
-  .nl-form { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; }
+  .nl-form { display: flex; flex-direction: column; max-width: 440px; margin: 0 auto; }
+  .nl-row {
+    display: flex;
+    gap: 10px;
+  }
+  .nl-form .input-wrap {
+    flex: 1;
+    position: relative;
+  }
   .nl-form input {
+    width: 100%;
     flex: 1; padding: 14px 18px; border-radius: 100px;
     border: 1.5px solid rgba(255,255,255,0.15);
     background: rgba(255,255,255,0.08); color: #fff;
@@ -472,6 +481,35 @@
   .nl-form input::placeholder { color: var(--slate-400); }
   .nl-form input:focus { border-color: var(--sky-400); }
   .nl-form .btn-primary { white-space: nowrap; }
+
+  #emailInput.valid { border-color: #22c55e; }
+  #emailInput.invalid { border-color: #ef4444; }
+
+  .input-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .input-icon.show { opacity: 1; }
+
+  .input-message {
+    min-height: 20px;
+    font-size: 0.8rem;
+    margin: 6px 2px 0;
+  }
+
+  .input-message.valid { color: #16a34a; }
+  .input-message.invalid { color: #ef4444; }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
   /* ── FOOTER ── */
   footer {
@@ -725,8 +763,14 @@
       <h2>Ready to breathe different?</h2>
       <p>Join 12,847 breathers. Get weekly air quality insights and exclusive nostril tips.</p>
       <div class="nl-form">
-        <input type="email" placeholder="you@breathe.io" id="emailInput">
-        <button class="btn btn-primary" onclick="handleSignup()">Subscribe Free →</button>
+        <div class="nl-row">
+          <div class="input-wrap">
+            <input type="email" placeholder="you@breathe.io" id="emailInput">
+            <span class="input-icon" id="inputIcon"></span>
+          </div>
+          <button class="btn btn-primary" id="subscribeBtn" onclick="handleSignup()" disabled>Subscribe Free →</button>
+        </div>
+        <p class="input-message" id="inputMessage"></p>
       </div>
       <p style="font-size:0.75rem; color:var(--slate-500); margin-top:14px;">No spam. Just air. Unsubscribe by holding your breath for 60 seconds.</p>
     </div>
@@ -786,6 +830,58 @@
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3200);
   }
+
+  const emailInput = document.getElementById('emailInput');
+  const icon = document.getElementById('inputIcon');
+  const message = document.getElementById('inputMessage');
+  const subscribeBtn = document.getElementById('subscribeBtn');
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function validateEmail(value) {
+    if (value.length === 0) return { state: 'empty' };
+    if (!emailRegex.test(value)) return { state: 'invalid', msg: 'Enter a valid email address' };
+    return { state: 'valid', msg: "Looks good — we'll send you the good stuff" };
+  }
+
+  function updateUI() {
+    const value = emailInput.value.trim();
+    const result = validateEmail(value);
+
+    emailInput.classList.remove('valid', 'invalid');
+    icon.classList.remove('show');
+    message.classList.remove('valid', 'invalid');
+
+    if (result.state === 'empty') {
+      message.textContent = '';
+      subscribeBtn.disabled = true;
+      return;
+    }
+
+    if (result.state === 'valid') {
+      emailInput.classList.add('valid');
+      icon.textContent = '✓';
+      icon.classList.add('show');
+      message.textContent = result.msg;
+      message.classList.add('valid');
+      subscribeBtn.disabled = false;
+    } else {
+      emailInput.classList.add('invalid');
+      icon.textContent = '✕';
+      icon.classList.add('show');
+      message.textContent = result.msg;
+      message.classList.add('invalid');
+      subscribeBtn.disabled = true;
+    }
+  }
+
+  let debounceTimer;
+  emailInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(updateUI, 150);
+  });
+
+  emailInput.addEventListener('blur', updateUI);
 
   function handleSignup() {
     const email = document.getElementById('emailInput').value;
