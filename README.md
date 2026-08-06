@@ -62,3 +62,11 @@ if (target) {
 ```
 
 I changed the CSS. For the connector line, I implemented `::after` and drew a line. For responsive screen size, I edited the steps class to column orientation. To hover with transition, I scaled it to a larger size and also remove the connecting line when hovered. 
+
+## Part 3 - README Questions
+1.	Deployed on GitHub Pages since this site is fully static without backend. It is integrated with GitHub repo. 
+2.  Currently, a non-technical person needs to edit the raw HTML to make changes. In the future, the content can be moved to a JSON or MD files so they could edit through an UI instead. 
+3.  Being static with no backend/database eliminates most attack surface, and everything's served over HTTPS by default; for production I'd add server-side input validation on the signup endpoint, and rate limiting once a real backend exists. I would also convert the repo to private and change the hosting provider.  
+4.	Currently, it's only three HTML files with duplicate line code. For better code maintenance ina. team environment, I would implement shared components and moved styles and scripts to external files. I would document it in an markdown file.
+5.	Since the website is framework free without backend, it is mostly fast. To optimize performance more, I would implement lazy loading for image files and content that is not visible on the screen. I wo
+6.	I added real-time email validation on the newsletter form using a debounced regex check with visual feedback (border, icon, message) and a disabled submit button until valid; with more time I'd connect it to a real email service and add server-side validation as a backup.
